@@ -1,0 +1,25 @@
+From 5cbc49540dee37ac5511899081c86e5fa712d59a Mon Sep 17 00:00:00 2001
+From: Johnny Walker <jwalker@ashley-martin.com>
+Date: Thu, 17 Jul 2014 08:47:45 -0600
+Subject: [PATCH 1/7] Use GNUInstallDirs.cmake
+
+---
+ CMakeLists.txt | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index d25b325..5564cf7 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -5,6 +5,8 @@ IF(NOT CMAKE_SIZEOF_VOID_P EQUAL 8)
+   message(FATAL_ERROR "HHVM requires a 64bit OS")
+ ENDIF()
+ 
++include(GNUInstallDirs)
++
+ SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake" ${CMAKE_MODULE_PATH})
+ 
+ if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/third-party/CMakeLists.txt")
+-- 
+1.9.3
+

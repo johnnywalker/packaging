@@ -1,0 +1,143 @@
+From 7e38f1543ab30a29d6e3c4d61ff0a626311f71ee Mon Sep 17 00:00:00 2001
+From: Johnny Walker <jwalker@ashley-martin.com>
+Date: Fri, 18 Jul 2014 16:22:08 -0600
+Subject: [PATCH 3/7] adjustments for GNUInstallDirs
+
+---
+ CMake/HPHPFunctions.cmake           |  7 ++++---
+ CMakeLists.txt                      |  4 +---
+ hphp/tools/hphpize/CMakeLists.txt   | 14 ++++++++------
+ hphp/tools/hphpize/hphpize.cmake.in |  3 ++-
+ hphp/tools/hphpize/hphpize.in       |  5 +++--
+ 5 files changed, 18 insertions(+), 15 deletions(-)
+
+diff --git a/CMake/HPHPFunctions.cmake b/CMake/HPHPFunctions.cmake
+index f36a6fb..4d1f5db 100644
+--- a/CMake/HPHPFunctions.cmake
++++ b/CMake/HPHPFunctions.cmake
+@@ -1,3 +1,5 @@
++include(GNUInstallDirs)
++
+ function(auto_sources RETURN_VALUE PATTERN SOURCE_SUBDIRS)
+ 
+   if ("${SOURCE_SUBDIRS}" STREQUAL "RECURSE")
+@@ -153,15 +155,14 @@ function(HHVM_INSTALL TARGET DEST)
+     endif()
+   endif()
+   string(TOUPPER ${DEST} DEST_UPPER)
+-  install(CODE "include(GNUInstallDirs)")
+-  install(CODE "FILE(INSTALL DESTINATION \"\${CMAKE_INSTALL_${DEST_UPPER}DIR}\" TYPE ${TY} FILES \"${LOC}\")")
++  install(CODE "FILE(INSTALL DESTINATION \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_${DEST_UPPER}DIR}\" TYPE ${TY} FILES \"${LOC}\")")
+ endfunction(HHVM_INSTALL)
+ 
+ function(HHVM_PUBLIC_HEADERS TARGET)
+   install(
+     CODE "INCLUDE(\"${HPHP_HOME}/CMake/HPHPFunctions.cmake\")
+       HHVM_INSTALL_HEADERS(${TARGET} ${HPHP_HOME}
+-      \"${CMAKE_INSTALL_PREFIX}/include\" ${ARGN})"
++      \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}\" ${ARGN})"
+     COMPONENT dev)
+ endfunction()
+ 
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 5564cf7..480135a 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -5,8 +5,6 @@ IF(NOT CMAKE_SIZEOF_VOID_P EQUAL 8)
+   message(FATAL_ERROR "HHVM requires a 64bit OS")
+ ENDIF()
+ 
+-include(GNUInstallDirs)
+-
+ SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake" ${CMAKE_MODULE_PATH})
+ 
+ if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/third-party/CMakeLists.txt")
+@@ -29,5 +27,5 @@ add_subdirectory(hphp)
+ file(GLOB HHVM_CMAKE_FILES "CMake/*.cmake")
+ install(
+   FILES ${HHVM_CMAKE_FILES}
+-  DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/hphp/CMake"
++  DESTINATION "${CMAKE_INSTALL_LIBDIR}/hphp/CMake"
+   COMPONENT dev)
+diff --git a/hphp/tools/hphpize/CMakeLists.txt b/hphp/tools/hphpize/CMakeLists.txt
+index 6fb8156..34a5ffb 100644
+--- a/hphp/tools/hphpize/CMakeLists.txt
++++ b/hphp/tools/hphpize/CMakeLists.txt
+@@ -1,24 +1,26 @@
+ GET_DIRECTORY_PROPERTY(SOURCE_INCLUDE_DIRS INCLUDE_DIRECTORIES)
+ 
+-set(HHVM_INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/include")
++set(HHVM_INCLUDE_DIRS "${CMAKE_INSTALL_FULL_INCLUDEDIR}")
+ 
+ foreach(dir ${SOURCE_INCLUDE_DIRS})
+   if(dir STREQUAL "${HPHP_HOME}/third-party/folly")
+     # omit: PREFIX/third-party is a suitable path
+   elseif(dir STREQUAL "${HPHP_HOME}/third-party/double-conversion/src")
+     # omit: PREFIX/third-party is a suitable path
++  elseif(dir STREQUAL "${HPHP_HOME}")
++    # omit: base dir should not be included
+   else()
+-    # map HPHP_HOME/hphp to PREFIX/include/hphp
++    # map HPHP_HOME/hphp to CMAKE_INSTALL_FULL_INCLUDEDIR/hphp
+     string(REPLACE
+       "${HPHP_HOME}/hphp" # match string
+-      "${CMAKE_INSTALL_PREFIX}/include/hphp" # replace string
++      "${CMAKE_INSTALL_FULL_INCLUDEDIR}/hphp" # replace string
+       dir # output variable
+       ${dir}) # input
+ 
+-    # map HPHP_HOME/third-party to PREFIX/include/hphp/third-party
++    # map HPHP_HOME/third-party to CMAKE_INSTALL_FULL_INCLUDEDIR/hphp/third-party
+     string(REPLACE
+       "${HPHP_HOME}/third-party" # match string
+-      "${CMAKE_INSTALL_PREFIX}/include/hphp/third-party" # replace string
++      "${CMAKE_INSTALL_FULL_INCLUDEDIR}/hphp/third-party" # replace string
+       dir # output variable
+       ${dir}) # input
+ 
+@@ -41,5 +43,5 @@ install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/hphpize
+   DESTINATION bin
+   COMPONENT dev)
+ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/hphpize.cmake
+-  DESTINATION "lib/hphp/hphpize"
++  DESTINATION "${CMAKE_INSTALL_LIBDIR}/hphp/hphpize"
+   COMPONENT dev)
+diff --git a/hphp/tools/hphpize/hphpize.cmake.in b/hphp/tools/hphpize/hphpize.cmake.in
+index 9fa065b..dbf3c5c 100644
+--- a/hphp/tools/hphpize/hphpize.cmake.in
++++ b/hphp/tools/hphpize/hphpize.cmake.in
+@@ -5,8 +5,9 @@ set(HHVM_INCLUDE_DIRS "@HHVM_INCLUDE_DIRS@")
+ set(HHVM_DEFINITIONS "@HHVM_DEFINITIONS@")
+ set(HHVM_API_VERSION "@HHVM_API_VERSION@")
+ set(CMAKE_INSTALL_PREFIX "@CMAKE_INSTALL_PREFIX@")
++set(CMAKE_INSTALL_LIBDIR "@CMAKE_INSTALL_LIBDIR@")
+ set(CMAKE_MODULE_PATH
+-  "${CMAKE_INSTALL_PREFIX}/lib/hphp/CMake"
++  "${CMAKE_INSTALL_LIBDIR}/${CMAKE_INSTALL_LIBDIR}/hphp/CMake"
+   ${CMAKE_CURRENT_SOURCE_DIR}
+   ${CMAKE_MODULE_PATH})
+ set(CMAKE_BUILD_TYPE "@CMAKE_BUILD_TYPE@")
+diff --git a/hphp/tools/hphpize/hphpize.in b/hphp/tools/hphpize/hphpize.in
+index 6793ca0..b1a3bda 100644
+--- a/hphp/tools/hphpize/hphpize.in
++++ b/hphp/tools/hphpize/hphpize.in
+@@ -1,7 +1,8 @@
+ #!/bin/sh
+ 
+ HHVM_INSTALL_PREFIX="@CMAKE_INSTALL_PREFIX@"
+-HHVM_LIB="$HHVM_INSTALL_PREFIX/lib/hphp"
++HHVM_INSTALL_LIBDIR="@CMAKE_INSTALL_LIBDIR@"
++HHVM_LIB="$HHVM_INSTALL_PREFIX/$HHVM_INSTALL_LIBDIR/hphp"
+ 
+ if [ ! -f "config.cmake" ]; then
+   echo "config.cmake not found" >&2
+@@ -10,4 +11,4 @@ fi
+ 
+ cp "$HHVM_LIB/hphpize/hphpize.cmake" CMakeLists.txt
+ 
+-echo "** hphpize complete, now run \`cmake . && make\` to build"
+\ No newline at end of file
++echo "** hphpize complete, now run \`cmake . && make\` to build"
+-- 
+1.9.3
+

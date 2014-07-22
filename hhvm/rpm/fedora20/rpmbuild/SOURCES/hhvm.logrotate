@@ -1,0 +1,10 @@
+@_localstatedir@/log/hhvm/*.log {
+        daily
+        rotate 52
+        copytruncate
+        compress
+        delaycompress
+        notifempty
+        missingok
+        create 660 www-data www-data
+}

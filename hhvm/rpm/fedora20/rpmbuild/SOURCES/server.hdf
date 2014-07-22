@@ -1,8 +1,6 @@
-PidFile = /var/run/hhvm
-
 Server {
   Port = 80
-  SourceRoot = /var/www/
+  SourceRoot = @_localstatedir@/www/
   DefaultDocument = index.php
 }
 
@@ -10,12 +8,13 @@ Log {
   Level = Warning
   AlwaysLogUnhandledExceptions = true
   RuntimeErrorReportingLevel = 8191
+  Header = true
   UseLogFile = true
   UseSyslog = false
-  File = /var/log/hhvm/error.log
+  File = @_localstatedir@/log/hhvm/error.log
   Access {
     * {
-      File = /var/log/hhvm/access.log
+      File = @_localstatedir@/log/hhvm/access.log
       Format = %h %l %u % t \"%r\" %>s %b
     }
   }
@@ -23,11 +22,11 @@ Log {
 
 Repo {
   Central {
-    Path = /var/log/hhvm/.hhvm.hhbc
+    Path = @_localstatedir@/cache/hhvm/hhvm.hhbc
   }
 }
 
-#include "/usr/share/hhvm/hdf/static.mime-types.hdf"
+#include "@_datadir@/hhvm/hdf/static.mime-types.hdf"
 StaticFile {
   FilesMatch {
     * {

@@ -2,7 +2,10 @@
 Description=HipHop Virtual Machine (FCGI)
 
 [Service]
-ExecStart=/usr/bin/hhvm --config /etc/hhvm/server.hdf --user www-data --mode daemon -vServer.Type=fastcgi -vServer.Port=9000
+Environment=USER=www-data CONFIG_FILE=@_sysconfdir@/hhvm/server.hdf SERVER_TYPE=fastcgi SERVER_PORT=9000
+EnvironmentFile=/etc/sysconfig/hhvm
+PIDFile=@_localstatedir@/run/hhvm/hhvm.pid
+ExecStart=@_bindir@/hhvm --config ${CONFIG_FILE} --user ${USER} --mode daemon -vServer.Type=${SERVER_TYPE} -vServer.Port=${SERVER_PORT} -vPidFile=@_localstatedir@/run/hhvm/hhvm.pid
 
 [Install]
 WantedBy=multi-user.target

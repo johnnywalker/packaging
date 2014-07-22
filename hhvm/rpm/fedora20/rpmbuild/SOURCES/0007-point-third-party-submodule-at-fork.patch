@@ -1,0 +1,21 @@
+From 81b4cfb23ed292f44821180c706a3d39c78f7423 Mon Sep 17 00:00:00 2001
+From: Johnny Walker <jwalker@ashley-martin.com>
+Date: Mon, 21 Jul 2014 16:08:59 -0600
+Subject: [PATCH 7/7] point third-party submodule at fork
+
+---
+ .gitmodules | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/.gitmodules b/.gitmodules
+index 911341e..62f2d0d 100644
+--- a/.gitmodules
++++ b/.gitmodules
+@@ -1,3 +1,3 @@
+ [submodule "third-party"]
+ 	path = third-party
+-	url = https://github.com/hhvm/hhvm-third-party.git
++	url = https://github.com/johnnywalker/hhvm-third-party.git
+-- 
+1.9.3
+

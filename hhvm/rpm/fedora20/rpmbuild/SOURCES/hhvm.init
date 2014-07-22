@@ -1,0 +1,100 @@
+#!/bin/bash
+#
+# hhvm        Startup script for the HipHop Server
+#
+# chkconfig: - 85 15
+# description: HipHop is a high performance PHP toolchain
+# processname: hhvm
+# config: @_sysconfdir@/hhvm/server.hdf
+# config: @_sysconfdir@/sysconfig/hhvm
+# pidfile: @_localstatedir@/run/hhvm/hhvm.pid
+#
+### BEGIN INIT INFO
+# Provides: hhvm
+# Short-Description: start and stop HipHop Server
+# Description: HipHop is a high performance PHP toolchain
+### END INIT INFO
+
+HHVM=@_bindir@/hhvm
+prog=HipHop
+lockfile=@_localstatedir@/run/hhvm/hhvm.lock
+config=@_sysconfdir@/sysconfig/hhvm
+pidfile=@_localstatedir@/run/hhvm/hhvm.pid
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+[ $UID -eq 0 ] && [ -e ${config} ] && . ${config}
+
+# defaults
+: ${USER:=www-data}
+: ${CONFIG_FILE:=@_sysconfdir@/hhvm/server.hdf}
+: ${SERVER_TYPE:=fastcgi}
+: ${SERVER_PORT:=9000}
+
+start() {
+    if [ $UID -ne 0 ] ; then
+        echo "User has insufficient privilege."
+        exit 4
+    fi
+    [ -x $HHVM ] || exit 5
+    echo -n $"Starting $prog: "
+    daemon ${HHVM} --config ${CONFIG_FILE} --mode daemon --user ${USER} -vServer.Type=${SERVER_TYPE} \
+        -vServer.Port=${SERVER_PORT} -vPidFile=${pidfile}
+    retval=$?
+    echo
+    [ $retval -eq 0 ] && touch ${lockfile}
+}
+
+
+stop() {
+    if [ $UID -ne 0 ] ; then
+        echo "User has insufficient privilege."
+        exit 4
+    fi
+    echo -n $"Stopping $prog: "
+    killproc -p ${pidfile} $HHVM
+    retval=$?
+    echo
+    [ $retval -eq 0 ] && rm -f ${lockfile} ${pidfile}
+}
+
+restart() {
+    rh_status_q && stop
+    start
+}
+
+rh_status() {
+    # run checks to determine if the service is running or use generic status
+    status -p ${pidfile} $HHVM
+}
+
+rh_status_q() {
+    rh_status >/dev/null 2>&1
+}
+
+# See how we were called.
+case "$1" in
+    start)
+        rh_status_q && exit 0
+        $1
+        ;;
+    stop)
+        rh_status_q || exit 0
+        $1
+        ;;
+    status)
+        rh_status
+        ;;
+    restart)
+        $1
+        ;;
+    condrestart|try-restart) 
+        rh_status_q || exit 0
+        restart
+        ;;
+    *)
+        echo $"Usage: $0 {start|stop|status|restart|condrestart|try-restart}"
+        exit 2
+esac
+exit $?

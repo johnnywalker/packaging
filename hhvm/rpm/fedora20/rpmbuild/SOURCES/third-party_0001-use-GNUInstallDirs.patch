@@ -1,0 +1,45 @@
+From fd7a092d512829c32fbbd099f40441a5e0e3553e Mon Sep 17 00:00:00 2001
+From: Johnny Walker <jwalker@ashley-martin.com>
+Date: Fri, 18 Jul 2014 16:23:22 -0600
+Subject: [PATCH] use GNUInstallDirs
+
+---
+ CMakeLists.txt        | 2 +-
+ libzip/CMakeLists.txt | 6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 3696f57..7662148 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -44,7 +44,7 @@ function(TP_INSTALL_HEADERS TARGET SRCDIR DEST)
+     CODE "INCLUDE(\"${HPHP_HOME}/CMake/HPHPFunctions.cmake\")
+       HHVM_INSTALL_HEADERS(${TARGET}
+       \"${CMAKE_CURRENT_SOURCE_DIR}/${SRCDIR}\"
+-      \"\${CMAKE_INSTALL_PREFIX}/include/hphp/third-party/${DEST}\"
++      \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}/hphp/third-party/${DEST}\"
+       ${files})"
+     COMPONENT dev)
+ endfunction()
+diff --git a/libzip/CMakeLists.txt b/libzip/CMakeLists.txt
+index 7cdb16f..064decc 100644
+--- a/libzip/CMakeLists.txt
++++ b/libzip/CMakeLists.txt
+@@ -165,11 +165,11 @@ ENDIF(NOT HAVE_MKSTEMP)
+ ADD_LIBRARY(zip_static STATIC ${LIBZIP_SOURCES} ${LIBZIP_EXTRA_FILES})
+ SET_TARGET_PROPERTIES(zip_static PROPERTIES OUTPUT_NAME zip)
+ TARGET_LINK_LIBRARIES(zip_static ${ZLIB_LIBRARY})
+-INSTALL(TARGETS zip_static DESTINATION lib)
++INSTALL(TARGETS zip_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
+ 
+ ADD_LIBRARY(zip_shared SHARED ${LIBZIP_SOURCES} ${LIBZIP_EXTRA_FILES})
+ SET_TARGET_PROPERTIES(zip_shared PROPERTIES OUTPUT_NAME zip)
+ TARGET_LINK_LIBRARIES(zip_shared ${ZLIB_LIBRARY})
+-INSTALL(TARGETS zip_shared DESTINATION lib)
++INSTALL(TARGETS zip_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
+ 
+-INSTALL(FILES zipconf.h zip.h DESTINATION include)
++INSTALL(FILES zipconf.h zip.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+-- 
+1.9.3
+

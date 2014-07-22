@@ -1,0 +1,4 @@
+#USER=www-data
+#CONFIG_FILE=@_sysconfdir@/hhvm/server.hdf
+#SERVER_TYPE=fastcgi
+#SERVER_PORT=9000

@@ -1,0 +1,31 @@
+From 85b356731106a7bd6477628d86ff06ecc7b0920f Mon Sep 17 00:00:00 2001
+From: Johnny Walker <jwalker@ashley-martin.com>
+Date: Tue, 22 Jul 2014 11:12:56 -0600
+Subject: [PATCH 2/2] disable libzip install
+
+---
+ libzip/CMakeLists.txt | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/libzip/CMakeLists.txt b/libzip/CMakeLists.txt
+index 064decc..b948d5d 100644
+--- a/libzip/CMakeLists.txt
++++ b/libzip/CMakeLists.txt
+@@ -165,11 +165,11 @@ ENDIF(NOT HAVE_MKSTEMP)
+ ADD_LIBRARY(zip_static STATIC ${LIBZIP_SOURCES} ${LIBZIP_EXTRA_FILES})
+ SET_TARGET_PROPERTIES(zip_static PROPERTIES OUTPUT_NAME zip)
+ TARGET_LINK_LIBRARIES(zip_static ${ZLIB_LIBRARY})
+-INSTALL(TARGETS zip_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
++#INSTALL(TARGETS zip_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
+ 
+ ADD_LIBRARY(zip_shared SHARED ${LIBZIP_SOURCES} ${LIBZIP_EXTRA_FILES})
+ SET_TARGET_PROPERTIES(zip_shared PROPERTIES OUTPUT_NAME zip)
+ TARGET_LINK_LIBRARIES(zip_shared ${ZLIB_LIBRARY})
+-INSTALL(TARGETS zip_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
++#INSTALL(TARGETS zip_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
+ 
+-INSTALL(FILES zipconf.h zip.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
++#INSTALL(FILES zipconf.h zip.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+-- 
+1.9.3
+
